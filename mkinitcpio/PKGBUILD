@@ -1,17 +1,17 @@
 # Maintainer: Giancarlo Razzolini <grazzolini@archlinux.org>
-# Maintainer: Dave Reisner <dreisner@archlinux.org>
-# Maintainer: Thomas Bächler <thomas@archlinux.org>
+# Maintainer: Morten Linderud <foxboron@archlinux.org>
+# Contributor: Dave Reisner <dreisner@archlinux.org>
+# Contributor: Thomas Bächler <thomas@archlinux.org>
 
 pkgname=mkinitcpio
 pkgver=32
-pkgrel=6
+pkgrel=8
 pkgdesc="Modular initramfs image creation utility"
 arch=('any')
 url='https://github.com/archlinux/mkinitcpio'
 license=('GPL')
 depends=('awk' 'mkinitcpio-busybox>=1.19.4-2' 'kmod' 'util-linux>=2.23' 'libarchive' 'coreutils'
          'bash' 'binutils' 'diffutils' 'findutils' 'grep' 'filesystem>=2011.10-1' 'zstd' 'systemd')
-makedepends=('asciidoc')
 optdepends=('gzip: Use gzip compression for the initramfs image'
             'xz: Use lzma or xz compression for the initramfs image'
             'bzip2: Use bzip2 compression for the initramfs image'
@@ -21,28 +21,20 @@ optdepends=('gzip: Use gzip compression for the initramfs image'
 provides=('initramfs')
 backup=('etc/mkinitcpio.conf')
 source=("https://sources.archlinux.org/other/$pkgname/$pkgname-$pkgver.tar.gz"{,.sig}
-        '0001-mkinitcpio-cachyos.patch')
+        "fix-strip.patch::https://github.com/archlinux/mkinitcpio/commit/dece596d569ca90af902bf2403227b478b629c03.patch")
 install=mkinitcpio.install
 sha512sums=('c180bef8af774305e8c9779b3405daaa5be33588bf89c6625a28eac1cde424f447782737d85d810fed4971d38b31086a072293d42aad08398c090f9538b56a4e'
             'SKIP'
-            '258a69c567fadf7e2d08b975e3d316678d426de4954be504b81d005419c6450f06dae70bd752cc37efd834c54d6a5deeeb09889ec57c9f129b22ca3b01d9953c')
+            '33bebb544b632066838a13a5d2d5adb09a74be37cee96e44e0f9e71b2ba5f4097d3642f98f299d936141692347504cc95a9cf35fdf444e27d6620871051d7ddc')
 b2sums=('0c29659278e662eb58bc776f99e9579b5f0cf3268175382ecf2d635d54a6a8261ae173e387503a0c20a7492656c703a6699b52e1a6693c85c3211225d3e7abf8'
         'SKIP'
-        '46463637d3cb46aa26186caac0f03d1ca3f4f383cc68f055cd2f64fbe436b9bb9e80a88c72dc8c8931b2d4955ae47a674768eabf1496d67fa4fdb6b0e993e43f')
+        'b1779f2d2fc0ce51b2ea347058b55845c00eb964d87013310528dcc0de661af9f0a2ef801531d66d17bf807ffe44cbdf7fbc34eb91734bfa973fc9b2fb08399b')
 validpgpkeys=('ECCAC84C1BA08A6CC8E63FBBF22FB1D78A77AEAB'    # Giancarlo Razzolini
               'C100346676634E80C940FB9E9C02FF419FECBE16')   # Morten Linderud
 
 prepare() {
- cd $pkgname-$pkgver
-
- local src
-  for src in "${source[@]}"; do
-    src="${src%%::*}"
-    src="${src##*/}"
-    [[ $src = *.patch ]] || continue
-    echo "Applying patch $src..."
-    patch -Np1 < "../$src"
-  done
+    cd "${pkgname}-${pkgver}"
+    patch -Np1 < "$srcdir/fix-strip.patch"
 }
 
 check() {
