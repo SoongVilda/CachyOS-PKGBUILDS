@@ -3,31 +3,30 @@
 # Contributor: Damian N. <nycko123 at gmail>
 
 pkgname=uksmd-git
-_pkgname=uksmd
-pkgver=0.0.0.r37.gf10f38e
-pkgrel=6
+gitname=uksmd
+pkgver=0.0.0.r47.g7719612
+pkgrel=1
 epoch=1
 pkgdesc="Userspace KSM helper daemon"
-url="https://codeberg.org/pf-kernel/uksmd"
-license=(GPL3)
-arch=(x86_64)
+url="https://codeberg.org/sirlucjan/uksmd"
+license=('GPL3')
+arch=('x86_64')
 depends=('procps-ng' 'libcap-ng')
 makedepends=('meson' 'git')
 conflicts=('uksmd')
 provides=("uksmd=${pkgver}")
-source=('git+https://codeberg.org/pf-kernel/uksmd'
-        'uksmdstats')
-sha256sums=('SKIP'
-            '626a4c154d24debea65727221a927c3c4a44b5328ea24cbbb03ef2bd4ec1c226')
+#source=('git+https://codeberg.org/pf-kernel/uksmd')
+source=('git+https://codeberg.org/sirlucjan/uksmd')
+sha256sums=('SKIP')
 
 pkgver() {
-  cd $_pkgname
-  _ver="$(cat meson.build | grep -o "[[:digit:]]*" | paste -sd'.')"
+  cd $gitname
+  _ver="$(cat meson.build | grep -m1 'version' | grep -o "[[:digit:]]*" | paste -sd'.')"
   printf "${_ver}.r$(git rev-list --count HEAD).g$(git rev-parse --short HEAD)"
 }
 
 prepare() {
- cd $_pkgname
+ cd $gitname
 
  local src
   for src in "${source[@]}"; do
@@ -40,7 +39,7 @@ prepare() {
 }
 
 build() {
-  cd $_pkgname
+  cd $gitname
   arch-meson . build
   meson compile -C build
 }
@@ -48,8 +47,6 @@ build() {
 package() {
   depends+=(UKSMD-BUILTIN)
 
-  cd $_pkgname
+  cd $gitname
   meson install -C build --destdir "${pkgdir}"
-  install -Dm 755 ${srcdir}/uksmdstats "${pkgdir}"/usr/bin/uksmdstats
-  install -Dm 644 "COPYING" "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE"
 }
